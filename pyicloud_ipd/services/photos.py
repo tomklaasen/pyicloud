@@ -4,7 +4,7 @@ import logging
 import base64
 
 from datetime import datetime
-from pyicloud.exceptions import PyiCloudServiceNotActivatedErrror
+from pyicloud_ipd.exceptions import PyiCloudServiceNotActivatedErrror
 import pytz
 
 from future.moves.urllib.parse import urlencode

@@ -17,7 +17,7 @@ Authentication
 
 Authentication without using a saved password is as simple as passing your username and password to the ``PyiCloudService`` class:
 
->>> from pyicloud import PyiCloudService
+>>> from pyicloud_ipd import PyiCloudService
 >>> api = PyiCloudService('jappleseed@apple.com', 'password')
 
 In the event that the username/password combination is invalid, a ``PyiCloudFailedLoginException`` exception is thrown.

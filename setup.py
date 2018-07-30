@@ -6,9 +6,9 @@ with open('requirements.txt') as f:
 
 
 setup(
-    name='pyicloud',
+    name='pyicloud_ipd',
     version='0.9.1',
-    url='https://github.com/picklepete/pyicloud',
+    url='https://github.com/ndbroadbent/pyicloud',
     description=(
         'PyiCloud is a module which allows pythonistas to '
         'interact with iCloud webservices.'
@@ -29,7 +29,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'icloud = pyicloud.cmdline:main'
+            'icloud = pyicloud_ipd.cmdline:main'
         ]
     },
 )
