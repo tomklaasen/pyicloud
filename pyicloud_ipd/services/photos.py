@@ -481,6 +481,9 @@ class PhotoAsset(object):
 
     @property
     def item_type(self):
+        fields = self._master_record['fields']
+        if not fields.hasattr('itemType') or not fields['itemType'].hasattr('value'):
+            return 'unknown'
         item_type = self._master_record['fields']['itemType']['value']
         if item_type in self.ITEM_TYPES:
             return self.ITEM_TYPES[item_type]
