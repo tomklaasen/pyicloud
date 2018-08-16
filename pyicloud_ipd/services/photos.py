@@ -2,6 +2,7 @@ import sys
 import json
 import logging
 import base64
+import re
 
 from datetime import datetime
 from pyicloud_ipd.exceptions import PyiCloudServiceNotActivatedErrror
@@ -430,7 +431,10 @@ class PhotoAsset(object):
     PHOTO_VERSION_LOOKUP = {
         u"original": u"resOriginal",
         u"medium": u"resJPEGMed",
-        u"thumb": u"resJPEGThumb"
+        u"thumb": u"resJPEGThumb",
+        u"originalVideo": u"resOriginalVidCompl",
+        u"mediumVideo": u"resVidMed",
+        u"thumbVideo": u"resVidSmall",
     }
 
     VIDEO_VERSION_LOOKUP = {
@@ -530,6 +534,13 @@ class PhotoAsset(object):
                         version['type'] = type_entry['value']
                     else:
                         version['type'] = None
+
+                    # Fix filename for live photo movies
+                    if (self.item_type == "image" and
+                        version['type'] == 'com.apple.quicktime-movie' and
+                        version['filename'].endswith('.JPG')):
+                        version['filename'] = re.sub(
+                            '\.JPG$', '.LIVE.MOV', version['filename'])
 
                     self._versions[key] = version
 
