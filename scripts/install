@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+python setup.py bdist_wheel --universal
+pip2 uninstall -y pyicloud_ipd
+pip2 install dist/*
+
+pip3 uninstall -y pyicloud_ipd
+pip3 install dist/*
