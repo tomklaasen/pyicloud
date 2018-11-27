@@ -448,6 +448,13 @@ class PhotoAsset(object):
         u"com.apple.quicktime-movie": u"movie"
     }
 
+    ITEM_TYPE_EXTENSIONS = {
+        u"public.heic": u"HEIC",
+        u"public.jpeg": u"JPG",
+        u"public.png": u"PNG",
+        u"com.apple.quicktime-movie": u"MOV"
+    }
+
     PHOTO_VERSION_LOOKUP = {
         u"original": u"resOriginal",
         u"medium": u"resJPEGMed",
@@ -469,9 +476,17 @@ class PhotoAsset(object):
 
     @property
     def filename(self):
-        return base64.b64decode(
-                self._master_record['fields']['filenameEnc']['value']
+        fields = self._master_record['fields']
+        if 'filenameEnc' in fields and 'value' in fields['filenameEnc']:
+            return base64.b64decode(
+                fields['filenameEnc']['value']
             ).decode('utf-8')
+
+        # Some photos don't have a filename.
+        # In that case, just use the truncated fingerprint (hash),
+        # plus the correct extension.
+        filename = re.sub('[^0-9a-zA-Z]', '_', self.id)[0:12]
+        return '.'.join([filename, self.item_type_extension])
 
     @property
     def size(self):
@@ -516,6 +531,16 @@ class PhotoAsset(object):
         return 'movie'
 
     @property
+    def item_type_extension(self):
+        fields = self._master_record['fields']
+        if 'itemType' not in fields or 'value' not in fields['itemType']:
+            return 'unknown'
+        item_type = self._master_record['fields']['itemType']['value']
+        if item_type in self.ITEM_TYPE_EXTENSIONS:
+            return self.ITEM_TYPE_EXTENSIONS[item_type]
+        return 'unknown'
+
+    @property
     def versions(self):
         if not self._versions:
             self._versions = {}
@@ -527,7 +552,8 @@ class PhotoAsset(object):
             for key, prefix in typed_version_lookup.items():
                 if '%sRes' % prefix in self._master_record['fields']:
                     f = self._master_record['fields']
-                    version = {'filename': self.filename}
+                    filename = self.filename
+                    version = {'filename': filename}
 
                     width_entry = f.get('%sWidth' % prefix)
                     if width_entry:
@@ -558,7 +584,7 @@ class PhotoAsset(object):
                     # Change live photo movie file extension to .MOV
                     if (self.item_type == "image" and
                         version['type'] == "com.apple.quicktime-movie"):
-                        if self.filename.lower().endswith('.heic'):
+                        if filename.lower().endswith('.heic'):
                             version['filename']=re.sub(
                                 '\.[^.]+$', '_HEVC.MOV', version['filename'])
                         else:
