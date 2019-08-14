@@ -242,6 +242,7 @@ class PhotoAlbum(object):
         self.exception_handler = None
 
         self._len = None
+        self._skip_first = 0
 
     @property
     def title(self):
@@ -263,7 +264,7 @@ class PhotoAlbum(object):
             response = request.json()
 
             self._len = (response["batch"][0]["records"][0]["fields"]
-                         ["itemCount"]["value"])
+                         ["itemCount"]["value"]) - self.skip_first
 
         return self._len
 
@@ -281,11 +282,21 @@ class PhotoAlbum(object):
         )
 
     @property
+    def skip_first(self):
+        if not self._skip_first:
+            self._skip_first = 0
+        return self._skip_first
+
+    @skip_first.setter
+    def skip_first(self, value):
+        self._skip_first = value
+
+    @property
     def photos(self):
         if self.direction == "DESCENDING":
             offset = len(self) - 1
         else:
-            offset = 0
+            offset = self.skip_first
 
         exception_retries = 0
 
